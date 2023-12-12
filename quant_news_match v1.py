@@ -44,7 +44,7 @@ class NewsDataset(torch.utils.data.Dataset):
         self.news_pa = news_pa
         self.news_na = news_na
         self.tokenizer = tokenizer
-        self.max_len = 200   #设定最长200
+        self.max_len = 200
         self.set_size = len(news_pa)
         return
 
@@ -79,7 +79,7 @@ def load_data_from_file(file_path, tokenizer, batchsize):
     news_na = list(data["news_pa"])
     print(len(news_q))
     t_dataset = NewsDataset(news_q, news_pa, news_na, tokenizer)
-    t_loader = torch.utils.data.DataLoader(t_dataset, batchsize, shuffle=True, drop_last=True) #形成数据加载器
+    t_loader = torch.utils.data.DataLoader(t_dataset, batchsize, shuffle=True, drop_last=True)
     return t_loader
 
 
@@ -109,7 +109,7 @@ def fit(epoch, device, model, loss_function, optimizer, train_loader, test_loade
         news_pa = batch['news_pa'].to(device)
         news_na = batch['news_na'].to(device)
         out_q, out_pa, out_na = model(news_q, news_pa, news_na)
-        loss = loss_function(out_q, out_pa, out_na)  # 计算Loss
+        loss = loss_function(out_q, out_pa, out_na)
         test_loss += loss.cpu().detach().numpy()
     print(f'Test Loss: {test_loss}')
 
@@ -117,13 +117,13 @@ def fit(epoch, device, model, loss_function, optimizer, train_loader, test_loade
 
 
 def train():
-    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')  # 使用cpu或者gpu
+    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
     tokenizer = BertTokenizer.from_pretrained("roberta/")
     #model = BertModel.from_pretrained("roberta/")
     model = TTModel()
     model.to(device)
-    model.load_state_dict(torch.load("roberta_model_weight01.pth")) #这里需要修改，加载roberta模型
+    model.load_state_dict(torch.load("roberta_model_weight01.pth"))
     print("load model")
 
     batchsize = 4
@@ -133,9 +133,9 @@ def train():
     test_loader = load_data_from_file(train_datafile_path, tokenizer, batchsize)
     print("load data")
 
-    loss_function = TripletMarginLoss(margin=5) # loss_function = nn.SmoothL1Loss() 损失函数，这里需要修改，看看是不是修改成熵函数
+    loss_function = TripletMarginLoss(margin=5) # loss_function = nn.SmoothL1Loss()
     learningrate = 0.001
-    optimizer = torch.optim.AdamW(model.parameters(), learningrate) #优化器
+    optimizer = torch.optim.AdamW(model.parameters(), learningrate)
     print("load loss function and optimizer")
 
     train_loss = []
